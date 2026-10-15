@@ -48,10 +48,13 @@ jobs:
           pg_isready
       - name: Display PostgreSQL version
         run: psql --version
-      - name: Decrypt BigQuery key
+      - name: Write BigQuery key
         run: |
           mkdir /opt/key/
-          gpg --quiet --batch --yes --decrypt --passphrase="${{ secrets.GPG_PASSPHRASE_BIGQUERY_KEY }}" --output /opt/key/key.json src/unittest/utils/key/key.json.gpg
+          umask 077
+          printf '%s' "$BIGQUERY_KEY_JSON" > /opt/key/key.json
+        env:
+          BIGQUERY_KEY_JSON: ${{ secrets.BIGQUERY_KEY_JSON }}
       - name: Install Python dependencies
         run: |
           pip install -U pip
